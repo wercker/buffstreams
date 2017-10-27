@@ -10,15 +10,12 @@ func byteArrayToUInt32(bytes []byte) (result int64, bytesRead int) {
 }
 
 func intToByteArray(value int64, bufferSize int) []byte {
-	toWriteLen := make([]byte, 4)
-	binary.LittleEndian.PutUint32(toWriteLen, uint32(value))
-	if value < 255 {
-		toWriteLen = []byte{toWriteLen[0]}
-	} else if value < 65536 {
-		toWriteLen = toWriteLen[0:2]
-	} else if value < 16777215 {
-		toWriteLen = toWriteLen[0:3]
+	toWriteLen := make([]byte, 0, 4)
+	for value >= 1<<7 {
+		toWriteLen = append(toWriteLen, uint8(value&0x7f|0x80))
+		value >>= 7
 	}
+	toWriteLen = append(toWriteLen, uint8(value))
 	return toWriteLen
 }
 
